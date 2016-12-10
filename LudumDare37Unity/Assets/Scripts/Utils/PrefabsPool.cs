@@ -21,7 +21,11 @@ namespace MaxPostnikov.Utils
 
     public class PrefabsPool<T> where T : MonoBehaviour, IPooled<T>
     {
+        public event Action<T> Recycled;
+
         public int SpawnedCount { get { return spawned.Count; } }
+
+        public List<T> Spawned {  get { return spawned; } }
 
         readonly IList<T> prefabs;
         readonly Transform container;
@@ -93,6 +97,9 @@ namespace MaxPostnikov.Utils
 
             instance.gameObject.SetActive(false);
             instance.OnRecycle();
+
+            if (Recycled != null)
+                Recycled(instance);
         }
 
         public void RecycleAll()
@@ -100,7 +107,7 @@ namespace MaxPostnikov.Utils
             for (var i = spawned.Count - 1; i >= 0; i--)
                 Recycle(spawned[i]);
         }
-
+        
         T Instantiate(int prefabIndex)
         {
             var instance = Object.Instantiate(prefabs[prefabIndex]);

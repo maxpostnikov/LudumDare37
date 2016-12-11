@@ -70,7 +70,8 @@ namespace MaxPostnikov.LD37
             else
                 transform.Translate(GetTranslation(targetDir));
 
-            MoveShell(shell.transform);
+            if (TryMoveShell(shell.transform))
+                shell.CameraFollow();
         }
 
         void StopMoving()
@@ -79,18 +80,22 @@ namespace MaxPostnikov.LD37
             mousePosition = Vector3.zero;
         }
 
-        void MoveShell(Transform shellTransform)
+        bool TryMoveShell(Transform shellTransform)
         {
             if (shellDelta > c_Radius)
-                return;
+                return false;
 
             var shellDir = targetPosition - shellTransform.position;
 
             shellTransform.Translate(GetTranslation(shellDir));
+
+            return true;
         }
 
         Vector3 GetTranslation(Vector3 dir)
         {
+            dir.z = 0f;
+
             return dir.normalized * currentSpeed * Time.deltaTime;
         }
     }

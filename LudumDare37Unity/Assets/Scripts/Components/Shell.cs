@@ -9,27 +9,44 @@ namespace MaxPostnikov.LD37
         public MeshRenderer backRenderer;
         public LineRenderer borderRenderer;
 
-        [Header("Settings")]
+        [Header("Border settings")]
         public float startRadius = 1f;
         public int segmentCount = 50;
+
+        [Header("Anim settings")]
         public float scaleTime = 0.5f;
+        public float smoothTime = 0.5f;
 
         public float Radius { get { return currentRadius; } }
-
+        
         bool isAnimating;
         float targetRadius;
         float currentRadius;
+        Vector3 cameraPosition;
+        Transform cameraTransform;
         WaitForEndOfFrame waitEndFrame;
+        float xDampVelocity, yDampVelocity;
 
         public void Init()
         {
             currentRadius = startRadius;
             waitEndFrame = new WaitForEndOfFrame();
+            cameraTransform = Camera.main.transform;
 
             borderRenderer.useWorldSpace = false;
             borderRenderer.SetVertexCount(segmentCount + 1);
             
             Generate();
+        }
+
+        public void CameraFollow()
+        {
+            cameraPosition = cameraTransform.position;
+
+            cameraPosition.x = Mathf.SmoothDamp(cameraPosition.x, transform.position.x, ref xDampVelocity, smoothTime);
+            cameraPosition.y = Mathf.SmoothDamp(cameraPosition.y, transform.position.y, ref yDampVelocity, smoothTime);
+
+            cameraTransform.position = cameraPosition;
         }
 
         void Generate()

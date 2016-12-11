@@ -2,29 +2,26 @@
 
 namespace MaxPostnikov.LD37
 {
-    public abstract class Bubble : MonoBehaviour
+    public class ColorBubble : MonoBehaviour
     {
-        protected const float c_Radius = 0.5f;
+        [Header("Color Bubble")]
+        public Color mainColor = Color.white;
 
+        public float Radius { get; private set; }
+        
         MeshRenderer meshRenderer;
         MaterialPropertyBlock propertyBlock;
-
-        protected float timer;
-        protected float shellDelta;
 
         public virtual void Init()
         {
             meshRenderer = GetComponent<MeshRenderer>();
             propertyBlock = new MaterialPropertyBlock();
+
+            Radius = transform.localScale.x / 2f;
+
+            SetColor(mainColor);
         }
-
-        public virtual void UpdateBubble(Shell shell)
-        {
-            var shellDist = Vector3.Distance(transform.position, shell.transform.position);
-
-            shellDelta = shell.Radius - shellDist;
-        }
-
+        
         protected void SetColor(Color color)
         {
             propertyBlock.SetColor("_Color", color);

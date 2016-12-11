@@ -7,7 +7,6 @@ namespace MaxPostnikov.LD37
     {
         [Header("Refs")]
         public Shell shell;
-        public PlayerBubble playerBubble;
         public NpcBubble[] npcBubblePrefabs;
 
         [Header("Settings")]
@@ -19,8 +18,7 @@ namespace MaxPostnikov.LD37
         void Start()
         {
             shell.Init();
-            playerBubble.Init();
-
+            
             npcBubblePool = new PrefabsPool<NpcBubble>(npcBubblePrefabs, transform, 3);
             npcBubblePool.Recycled += OnBubbleRecycled;
 
@@ -29,10 +27,10 @@ namespace MaxPostnikov.LD37
 
         void Update()
         {
-            playerBubble.UpdateBubble(shell);
+            shell.UpdateShell();
 
             for (var i = 0; i < npcBubblePool.SpawnedCount; i++)
-                npcBubblePool.Spawned[i].UpdateBubble(shell, playerBubble);
+                npcBubblePool.Spawned[i].UpdateBubble(shell);
         }
 
         void OnBubbleRecycled(NpcBubble obj)

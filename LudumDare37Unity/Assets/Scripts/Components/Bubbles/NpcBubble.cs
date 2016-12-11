@@ -4,21 +4,20 @@ using UnityEngine;
 
 namespace MaxPostnikov.LD37
 {
-    public class NpcBubble : Bubble, IPooled<NpcBubble>
+    public class NpcBubble : ColorBubble, IPooled<NpcBubble>
     {
-        [Header("Colors")]
-        public Color defaultColor = Color.white;
+        [Header("NPC Colors")]
         public Color enemyColor = Color.red;
         public Color friendColor = Color.cyan;
+
+        [Header("Player impact")]
+        public float friendImpact = 0.1f;
+        public float enemyImpact = -0.3f;
 
         [Header("Settings")]
         public float minPlayerDist = 0.8f;
         public float explosionDelay = 3f;
-
-        [Header("Shell damage")]
-        public float changeRadiusFriend = 0.1f;
-        public float changeRadiusEnemy = -0.3f;
-
+        
         [Header("Pulse Anim Settings")]
         public float pulseTime = 0.5f;
         public float minPulseScale = 0.9f;
@@ -26,9 +25,10 @@ namespace MaxPostnikov.LD37
 
         public bool IsEnemy { get; set; }
 
+        float timer;
         bool isActivated;
         WaitForEndOfFrame waitEndFrame;
-
+        
         #region IPooled
 
         public int PrefabIndex { get; private set; }
@@ -66,13 +66,14 @@ namespace MaxPostnikov.LD37
             waitEndFrame = new WaitForEndOfFrame();
         }
 
-        public void UpdateBubble(Shell shell, PlayerBubble player)
+        public void UpdateBubble(Shell shell)
         {
-            base.UpdateBubble(shell);
-
-            if (shellDelta >= c_Radius)
+            var dist = Vector3.Distance(transform.position, shell.transform.position);
+            var delta = shell.Radius - dist;
+            
+            if (delta >= Radius)
                 Activate();
-            else if (shellDelta <= -c_Radius)
+            else if (delta <= -Radius)
                 Deactivate();
 
             if (!isActivated) return;
@@ -81,15 +82,15 @@ namespace MaxPostnikov.LD37
                 timer += Time.deltaTime;
 
                 if (timer >= explosionDelay) {
-                    shell.ChangeRadius(changeRadiusEnemy);
+                    shell.ChangeRadius(enemyImpact);
 
                     Recycle();
                 }
             } else {
-                var playerDist = Vector3.Distance(transform.position, player.transform.position);
+                var playerDist = Vector3.Distance(transform.position, shell.InnerBubble.position);
 
                 if (playerDist < minPlayerDist) {
-                    shell.ChangeRadius(changeRadiusFriend);
+                    shell.ChangeRadius(friendImpact);
                     
                     Recycle();
                 }
@@ -116,7 +117,7 @@ namespace MaxPostnikov.LD37
             isActivated = false;
 
             StopAllCoroutines();
-            SetColor(defaultColor);
+            SetColor(mainColor);
         }
 
         IEnumerator AnimatePulse()

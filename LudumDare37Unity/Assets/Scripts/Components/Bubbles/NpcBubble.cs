@@ -82,7 +82,7 @@ namespace MaxPostnikov.LD37
                 timer += Time.deltaTime;
 
                 if (timer >= explosionDelay) {
-                    shell.ChangeRadius(enemyImpact);
+                    shell.NpcImpact(enemyImpact, true);
 
                     Recycle();
                 }
@@ -90,7 +90,7 @@ namespace MaxPostnikov.LD37
                 var playerDist = Vector3.Distance(transform.position, shell.InnerBubble.position);
 
                 if (playerDist < minPlayerDist) {
-                    shell.ChangeRadius(friendImpact);
+                    shell.NpcImpact(friendImpact, false);
                     
                     Recycle();
                 }

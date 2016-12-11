@@ -5,6 +5,8 @@ namespace MaxPostnikov.LD37
 {
     public class Shell : MonoBehaviour
     {
+        public event System.Action<float> RadiusChange;
+
         [Header("Refs")]
         public MeshRenderer backRenderer;
         public LineRenderer borderRenderer;
@@ -13,19 +15,24 @@ namespace MaxPostnikov.LD37
         [Header("Border settings")]
         public float startRadius = 1f;
         public int segmentCount = 50;
+        public float scaleTime = 0.5f;
 
         [Header("Movement settings")]
         public float speed = 5f;
         public float smoothTime = 0.5f;
         public float minTargetDist = 0.1f;
 
-        [Header("Anim settings")]
-        public float scaleTime = 0.5f;
+        [Header("Decrease settings")]
+        public float decreaseTime = 3f;
+        public float decreaseValue = -0.1f;
         
         public float Radius { get { return currentRadius; } }
 
+        public float DecreaseProgress { get { return 1f - Mathf.Clamp01(decreaseTimer / decreaseTime); } }
+
         public Transform InnerBubble { get { return innerBubble.transform; } }
         
+        float decreaseTimer;
         bool isAnimating;
         float targetRadius;
         float currentRadius;
@@ -42,24 +49,37 @@ namespace MaxPostnikov.LD37
         public void Init()
         {
             innerBubble.Init();
-
-            currentRadius = startRadius;
+            
             waitEndFrame = new WaitForEndOfFrame();
 
             camera = Camera.main;
             cameraTransform = Camera.main.transform;
-
-            targetPos = transform.position;
-            targetBubblePos = innerBubble.transform.localPosition;
-
+            
             borderRenderer.useWorldSpace = false;
             borderRenderer.SetVertexCount(segmentCount + 1);
-            
+        }
+
+        public void Reset()
+        {
+            isAnimating = false;
+            decreaseTimer = 0f;
+
+            targetPos = transform.position = Vector3.zero;
+            targetBubblePos = innerBubble.transform.localPosition = Vector3.zero;
+
+            currentRadius = startRadius;
+
             Generate();
         }
 
         public void UpdateShell()
         {
+            decreaseTimer += Time.deltaTime;
+            if (decreaseTimer > decreaseTime) {
+                decreaseTimer = 0f;
+                ChangeRadius(decreaseValue);
+            }
+
             transform.position = SmoothTranslate(transform.position, targetPos, ref xVelocity, ref yVelocity);
             cameraTransform.position = SmoothTranslate(cameraTransform.position, transform.position, ref xCamVelocity, ref yCamVelocity);
 
@@ -127,7 +147,14 @@ namespace MaxPostnikov.LD37
             backRenderer.transform.localScale = Vector3.one * currentRadius * 2f;
         }
         
-        public void ChangeRadius(float value)
+        public void NpcImpact(float value, bool isEnemy)
+        {
+            if (!isEnemy) decreaseTimer = 0f;
+
+            ChangeRadius(value);
+        }
+
+        void ChangeRadius(float value)
         {
             if (isAnimating) {
                 StopAllCoroutines();
@@ -156,6 +183,9 @@ namespace MaxPostnikov.LD37
 
                 yield return waitEndFrame;
             }
+
+            if (RadiusChange != null)
+                RadiusChange(currentRadius);
 
             isAnimating = false;
         }

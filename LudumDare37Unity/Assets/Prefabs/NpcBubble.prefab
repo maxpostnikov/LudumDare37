@@ -89,9 +89,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4da7d8938ba06a044b449dccbafcf266, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainColor: {r: 1, g: 1, b: 1, a: 1}
-  enemyColor: {r: 1, g: 0, b: 0, a: 1}
-  friendColor: {r: 0, g: 1, b: 1, a: 1}
+  mainColor: {r: 0.9780493, g: 0.98626053, b: 0.99264705, a: 1}
+  enemyColor: {r: 0.9490196, g: 0.42352942, b: 0.30980393, a: 1}
+  friendColor: {r: 0.22745098, g: 0.5372549, b: 0.7882353, a: 1}
   friendImpact: 0.15
   enemyImpact: -0.35
   minPlayerDist: 0.8

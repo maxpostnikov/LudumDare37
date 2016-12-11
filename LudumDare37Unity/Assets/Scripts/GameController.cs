@@ -123,7 +123,9 @@ namespace MaxPostnikov.LD37
                     position.x = shellPosition.x + Random.Range(range.x, range.y);
                     position.y = shellPosition.y + Random.Range(range.x, range.y);
                 } while (!IsDistant(position));
-                
+
+                position.z = 0.1f;
+
                 npc.transform.position = position;
             }
         }

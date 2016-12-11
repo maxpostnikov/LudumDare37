@@ -25,7 +25,7 @@ namespace MaxPostnikov.LD37
 
         public bool IsEnemy { get; set; }
 
-        float timer;
+        float timer = -1f;
         bool isActivated;
         WaitForEndOfFrame waitEndFrame;
         
@@ -48,6 +48,8 @@ namespace MaxPostnikov.LD37
 
         public virtual void OnRecycle()
         {
+            timer = -1f;
+
             Deactivate();
         }
 
@@ -71,22 +73,23 @@ namespace MaxPostnikov.LD37
             var dist = Vector3.Distance(transform.position, shell.transform.position);
             var delta = shell.Radius - dist;
             
-            if (delta >= Radius)
+            if (delta >= -Radius)
                 Activate();
-            else if (delta <= -Radius)
+            else
                 Deactivate();
 
-            if (!isActivated) return;
-
-            if (IsEnemy) {
+            if (IsEnemy && timer >= 0f) {
                 timer += Time.deltaTime;
 
                 if (timer >= explosionDelay) {
-                    shell.NpcImpact(enemyImpact, true);
+                    if (isActivated)
+                        shell.NpcImpact(enemyImpact, true);
 
                     Recycle();
                 }
-            } else {
+            }
+
+            if (!IsEnemy && isActivated) {
                 var playerDist = Vector3.Distance(transform.position, shell.InnerBubble.position);
 
                 if (playerDist < minPlayerDist) {
@@ -101,7 +104,9 @@ namespace MaxPostnikov.LD37
         {
             if (isActivated) return;
 
-            timer = 0f;
+            if (timer < 0)
+                timer = 0f;
+
             isActivated = true;
 
             if (IsEnemy)

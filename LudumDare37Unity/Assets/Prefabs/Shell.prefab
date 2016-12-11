@@ -221,10 +221,12 @@ MonoBehaviour:
   innerBubble: {fileID: 114000012404423222}
   startRadius: 2
   segmentCount: 50
+  scaleTime: 0.5
   speed: 5
   smoothTime: 0.5
   minTargetDist: 0.1
-  scaleTime: 0.5
+  decreaseTime: 5
+  decreaseValue: -0.2
 --- !u!114 &114000012404423222
 MonoBehaviour:
   m_ObjectHideFlags: 1

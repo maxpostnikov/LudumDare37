@@ -262,6 +262,10 @@ MonoBehaviour:
   npcOnRecycle: 2
   minShellRadius: 1
   scorePerFriend: 50
+  spawnRange: {x: -7, y: 7}
+  spawnRangeIncr: 1.1
+  spawnNpcDist: 3
+  spawnShellDist: 2
 --- !u!4 &250418490
 Transform:
   m_ObjectHideFlags: 0

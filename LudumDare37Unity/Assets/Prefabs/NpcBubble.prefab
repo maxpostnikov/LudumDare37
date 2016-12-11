@@ -92,10 +92,10 @@ MonoBehaviour:
   mainColor: {r: 1, g: 1, b: 1, a: 1}
   enemyColor: {r: 1, g: 0, b: 0, a: 1}
   friendColor: {r: 0, g: 1, b: 1, a: 1}
-  friendImpact: 0.1
-  enemyImpact: -0.3
+  friendImpact: 0.15
+  enemyImpact: -0.35
   minPlayerDist: 0.8
-  explosionDelay: 3
-  pulseTime: 0.5
-  minPulseScale: 0.9
-  maxPulseScale: 1.1
+  explosionDelay: 2
+  pulseTime: 0.2
+  minPulseScale: 0.85
+  maxPulseScale: 1.15

@@ -10,6 +10,8 @@ namespace MaxPostnikov.LD37
 
     public class GameController : MonoBehaviour, IUIController
     {
+        const int c_SpawnTriesThreshold = 100;
+
         [Header("Refs")]
         public Shell shell;
         public NpcBubble[] npcBubblePrefabs;
@@ -23,6 +25,12 @@ namespace MaxPostnikov.LD37
         public int npcOnRecycle = 2;
         public float minShellRadius = 1f;
         public int scorePerFriend = 50;
+
+        [Header("Spawn Settings")]
+        public Vector2 spawnRange = new Vector2(-5f, 5f);
+        public float spawnRangeIncr = 1.1f;
+        public float spawnNpcDist = 3f;
+        public float spawnShellDist = 2f;
 
         int totalScore;
         bool isGameOver;
@@ -75,6 +83,9 @@ namespace MaxPostnikov.LD37
                 npcBubblePool.Spawned[i].UpdateBubble(shell);
 
             progressBar.SetProgress(shell.DecreaseProgress);
+
+            if (Input.GetKeyDown(KeyCode.R))
+                Restart();
         }
 
         void OnShellRadiusChange(float radius)
@@ -95,21 +106,45 @@ namespace MaxPostnikov.LD37
 
         void SpawnNpc(int count)
         {
+            var position = Vector3.zero;
+            var shellPosition = shell.transform.position;
+
             for (var i = 0; i < count; i++) {
                 var npc = npcBubblePool.SpawnRandom();
                 npc.IsEnemy = Random.value >= 0.5f;
 
-                //TODO: also check other bubbles overlapp; way to define range
-                var position = Vector3.zero;
+                var numTries = 0;
+                var range = spawnRange;
                 do {
-                    position.x = Random.Range(-10f, 10f);
-                    position.y = Random.Range(-10f, 10f);
-                } while (Vector3.Distance(position, shell.transform.position) < shell.Radius * 2f);
-
+                    numTries++;
+                    if (numTries > c_SpawnTriesThreshold)
+                        range *= spawnRangeIncr;
+                    
+                    position.x = shellPosition.x + Random.Range(range.x, range.y);
+                    position.y = shellPosition.y + Random.Range(range.x, range.y);
+                } while (!IsDistant(position));
+                
                 npc.transform.position = position;
             }
         }
-        
+
+        bool IsDistant(Vector3 position)
+        {
+            var shellDist = Vector3.Distance(position, shell.transform.position);
+            if (shellDist < shell.Radius * spawnShellDist)
+                return false;
+
+            for (var i = 0; i < npcBubblePool.SpawnedCount; i++) {
+                var npc = npcBubblePool.Spawned[i];
+
+                var npcDist = Vector3.Distance(position, npc.transform.position);
+                if (npcDist < npc.Radius * spawnNpcDist)
+                    return false;
+            }
+
+            return true;
+        }
+
         void GameOver()
         {
             isGameOver = true;
@@ -120,6 +155,8 @@ namespace MaxPostnikov.LD37
 
         public void Restart()
         {
+            isGameOver = true;
+
             Reset();
         }
     }

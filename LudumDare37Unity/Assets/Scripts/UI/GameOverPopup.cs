@@ -5,6 +5,7 @@ namespace MaxPostnikov.LD37
 {
     public class GameOverPopup : MonoBehaviour
     {
+        public Text scoreText;
         public Button playAgainButton;
 
         IUIController controller;
@@ -16,8 +17,10 @@ namespace MaxPostnikov.LD37
             playAgainButton.onClick.AddListener(OnPlayAgain);
         }
 
-        public void Show()
+        public void Show(int score)
         {
+            scoreText.text = score.ToString();
+
             gameObject.SetActive(true);
         }
 

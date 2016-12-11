@@ -22,9 +22,22 @@ namespace MaxPostnikov.LD37
         public int npcOnStart = 10;
         public int npcOnRecycle = 2;
         public float minShellRadius = 1f;
+        public int scorePerFriend = 50;
 
+        int totalScore;
         bool isGameOver;
         PrefabsPool<NpcBubble> npcBubblePool;
+
+        int TotalScore {
+            get {
+                return totalScore;
+            }
+            set {
+                totalScore = value;
+
+                progressBar.SetScore(value);
+            }
+        }
 
         void Start()
         {
@@ -34,7 +47,7 @@ namespace MaxPostnikov.LD37
             shell.RadiusChange += OnShellRadiusChange;
             
             npcBubblePool = new PrefabsPool<NpcBubble>(npcBubblePrefabs, transform, 3);
-            npcBubblePool.Recycled += OnBubbleRecycled;
+            npcBubblePool.Recycled += OnNpcRecycled;
 
             Reset();
         }
@@ -48,6 +61,7 @@ namespace MaxPostnikov.LD37
             npcBubblePool.RecycleAll();
             SpawnNpc(npcOnStart);
 
+            TotalScore = 0;
             isGameOver = false;
         }
 
@@ -69,10 +83,14 @@ namespace MaxPostnikov.LD37
                 GameOver();
         }
 
-        void OnBubbleRecycled(NpcBubble bubble)
+        void OnNpcRecycled(NpcBubble npc)
         {
-            if (!isGameOver)
-                SpawnNpc(npcOnRecycle);
+            if (isGameOver) return;
+
+            if (!npc.IsEnemy)
+                TotalScore += Mathf.RoundToInt(scorePerFriend * shell.Radius);
+
+            SpawnNpc(npcOnRecycle);
         }
 
         void SpawnNpc(int count)
@@ -97,7 +115,7 @@ namespace MaxPostnikov.LD37
             isGameOver = true;
 
             progressBar.Hide();
-            gameOverPopup.Show();
+            gameOverPopup.Show(TotalScore);
         }
 
         public void Restart()

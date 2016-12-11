@@ -82,36 +82,45 @@ namespace MaxPostnikov.LD37
 
             transform.position = SmoothTranslate(transform.position, targetPos, ref xVelocity, ref yVelocity);
             cameraTransform.position = SmoothTranslate(cameraTransform.position, transform.position, ref xCamVelocity, ref yCamVelocity);
+            
+            if (Input.GetMouseButton(0)) {
+                mousePos = camera.ScreenToWorldPoint(Input.mousePosition);
+                mousePos.z = 0f;
 
-            if (!Input.GetMouseButton(0))
-                return;
+                delta = mousePos - innerBubble.transform.position;
+                if (delta.magnitude > minTargetDist) {
+                    offset = GetOffset();
 
-            mousePos = camera.ScreenToWorldPoint(Input.mousePosition);
-            mousePos.z = 0f;
+                    targetBubblePos.x += offset.x;
+                    targetBubblePos.y += offset.y;
+                    targetBubblePos.z = 0f;
 
-            delta = mousePos - innerBubble.transform.position;
-            if (delta.magnitude <= minTargetDist)
-                return;
+                    if (!TryKeepInBounds()) {
+                        delta = mousePos - transform.position;
+                        offset = GetOffset(1f / currentRadius);
 
-            offset = GetOffset();
+                        targetPos.x += offset.x;
+                        targetPos.y += offset.y;
+                        targetPos.z = 0f;
+                    }
+                }
+            } else {
+                TryKeepInBounds();
+            }
+            
+            innerBubble.transform.localPosition = targetBubblePos;
+        }
 
-            targetBubblePos.x += offset.x;
-            targetBubblePos.y += offset.y;
-            targetBubblePos.z = 0f;
-
+        bool TryKeepInBounds()
+        {
             var dist = Vector2.Distance(Vector2.zero, targetBubblePos);
             if (dist > InnerRadius) {
                 targetBubblePos = targetBubblePos.normalized * InnerRadius;
 
-                delta = mousePos - transform.position;
-                offset = GetOffset(1f / currentRadius);
-
-                targetPos.x += offset.x;
-                targetPos.y += offset.y;
-                targetPos.z = 0f;
+                return false;
             }
 
-            innerBubble.transform.localPosition = targetBubblePos;
+            return true;
         }
 
         Vector3 SmoothTranslate(Vector3 current, Vector3 target, ref float xVelocity, ref float yVelocity)

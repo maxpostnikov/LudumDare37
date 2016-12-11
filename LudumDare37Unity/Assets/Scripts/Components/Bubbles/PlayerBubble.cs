@@ -17,6 +17,7 @@ namespace MaxPostnikov.LD37
 
         new Camera camera;
         float currentSpeed;
+        float lastMoveSpeed;
         State currentState;
         Vector3 targetDir;
         Vector3 targetPosition;
@@ -48,6 +49,7 @@ namespace MaxPostnikov.LD37
 
             if (Input.GetMouseButtonUp(0)) {
                 timer = 0f;
+                lastMoveSpeed = currentSpeed;
                 currentState = State.Decelerate;
             }
 
@@ -60,18 +62,19 @@ namespace MaxPostnikov.LD37
                 if (timer > decelerateTime)
                     StopMoving();
                 else
-                    currentSpeed = Mathf.Lerp(maxSpeed, 0, decelerateCurve.Evaluate(timer / decelerateTime));
+                    currentSpeed = Mathf.Lerp(lastMoveSpeed, 0, decelerateCurve.Evaluate(timer / decelerateTime));
             }
             
             var dist = Vector3.Distance(transform.position, targetPosition);
 
             if (dist <= minTargetDist)
                 StopMoving();
-            else
-                transform.Translate(GetTranslation(targetDir));
+            else {
+                if (TryMoveShell(shell.transform, shell.Radius))
+                    shell.CameraFollow();
 
-            if (TryMoveShell(shell.transform))
-                shell.CameraFollow();
+                transform.Translate(GetTranslation(targetDir));
+            }
         }
 
         void StopMoving()
@@ -80,10 +83,13 @@ namespace MaxPostnikov.LD37
             mousePosition = Vector3.zero;
         }
 
-        bool TryMoveShell(Transform shellTransform)
+        bool TryMoveShell(Transform shellTransform, float shellRadius)
         {
             if (shellDelta > c_Radius)
                 return false;
+
+            if (currentState != State.Decelerate)
+                currentSpeed = Mathf.Clamp(maxSpeed / shellRadius, 0, maxSpeed);
 
             var shellDir = targetPosition - shellTransform.position;
 

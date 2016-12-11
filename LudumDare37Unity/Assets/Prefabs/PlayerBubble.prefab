@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: {r: 0, g: 0, b: 1, a: 1}
-  maxSpeed: 3
+  maxSpeed: 4
   minTargetDist: 0.1
   decelerateTime: 1
   decelerateCurve:

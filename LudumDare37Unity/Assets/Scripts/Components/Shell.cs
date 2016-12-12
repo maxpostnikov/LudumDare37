@@ -41,6 +41,7 @@ namespace MaxPostnikov.LD37
 
         new Camera camera;
         Vector3 delta, offset;
+        Vector3 touchPosition;
         Vector3 mousePos, targetPos, targetBubblePos;
         float xVelocity, yVelocity, xCamVelocity, yCamVelocity;
 
@@ -83,8 +84,8 @@ namespace MaxPostnikov.LD37
             transform.position = SmoothTranslate(transform.position, targetPos, ref xVelocity, ref yVelocity);
             cameraTransform.position = SmoothTranslate(cameraTransform.position, transform.position, ref xCamVelocity, ref yCamVelocity);
             
-            if (Input.GetMouseButton(0)) {
-                mousePos = camera.ScreenToWorldPoint(Input.mousePosition);
+            if (IsNeedToMove) {
+                mousePos = camera.ScreenToWorldPoint(InputPosition);
                 mousePos.z = 0f;
 
                 delta = mousePos - innerBubble.transform.position;
@@ -109,6 +110,27 @@ namespace MaxPostnikov.LD37
             }
             
             innerBubble.transform.localPosition = targetBubblePos;
+        }
+
+        bool IsNeedToMove {
+            get {
+                return Input.touchCount > 0 || Input.GetMouseButton(0);
+            }
+        }
+
+        Vector3 InputPosition {
+            get {
+                if (Input.touchCount > 0) {
+                    var touch = Input.GetTouch(0);
+
+                    touchPosition.x = touch.position.x;
+                    touchPosition.y = touch.position.y;
+
+                    return touchPosition;
+                }
+                
+                return Input.mousePosition;
+            }
         }
 
         bool TryKeepInBounds()
